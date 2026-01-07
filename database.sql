@@ -9,11 +9,11 @@ CREATE TABLE courses (
 
 CREATE TABLE lessons (
   id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  course_id BIGINT REFERENCES courses (id) NOT NULL,
+  course_id BIGINT REFERENCES courses (id),
   name VARCHAR(300) NOT NULL,
   content TEXT,
-  video_url VARCHAR(500) NOT NULL,
-  position INT NOT NULL,
+  video_url VARCHAR(500),
+  position INT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMPTZ
