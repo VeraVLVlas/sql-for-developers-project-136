@@ -1,6 +1,16 @@
+CREATE TABLE courses (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  name_course VARCHAR(300) NOT NULL,
+  description_course TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  deleted_at TIMESTAMPTZ
+);
+
 CREATE TABLE lessons (
   id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  course_id BIGINT REFERENCES courses (id),
+  course_id BIGINT REFERENCES courses (id) NOT NULL,
   name_lesson VARCHAR(300) NOT NULL,
   description_lesson TEXT,
   video_link VARCHAR(500) NOT NULL,
@@ -8,16 +18,6 @@ CREATE TABLE lessons (
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   link_course VARCHAR(500) NOT NULL,
-  is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-  deleted_at TIMESTAMPTZ
-);
-
-CREATE TABLE courses (
-  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  name_course VARCHAR(300) NOT NULL,
-  description_course TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
   deleted_at TIMESTAMPTZ
 );
@@ -32,10 +32,10 @@ CREATE TABLE modules (
 );
 
 CREATE TABLE module_course (
-  module_id BIGINT REFERENCES modules (id),
-  course_id BIGINT REFERENCES courses (id),
+  module_id BIGINT NOT NULL REFERENCES modules (id),
+  course_id BIGINT NOT NULL REFERENCES courses (id),
   PRIMARY KEY (module_id, course_id)
-)
+);
 
 CREATE TABLE programs (
   id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -46,8 +46,27 @@ CREATE TABLE programs (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE program_module (
+CREATE TABLE program_modules (
   program_id BIGINT REFERENCES programs (id),
   module_id BIGINT REFERENCES modules (id),
   PRIMARY KEY (program_id, module_id)
+);
+
+CREATE TABLE users (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  teaching_group_id BIGINT REFERENCES teaching_groups (id),
+  name VARCHAR(200) NOT NULL,
+  email VARCHAR(300) NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  link_group VARCHAR(500) NOT NULL,
+  role VARCHAR(100) NOT NULL CHECK(role IN ('student', 'teacher', 'admin')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE teaching_groups (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  slug VARCHAR(500),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
