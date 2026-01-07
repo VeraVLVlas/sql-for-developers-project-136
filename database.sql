@@ -61,8 +61,8 @@ CREATE TABLE users (
   teaching_group_id BIGINT NOT NULL REFERENCES teaching_groups (id),
   name VARCHAR(200) NOT NULL,
   email VARCHAR(300) NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL,
-  role VARCHAR(100) NOT NULL CHECK(role IN ('student', 'teacher', 'admin')),
+  password_hash TEXT,
+  role VARCHAR(100) NOT NULL CHECK(role IN ('Student', 'Teacher', 'Admin')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMPTZ
