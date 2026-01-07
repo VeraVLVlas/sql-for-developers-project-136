@@ -47,14 +47,14 @@ CREATE TABLE programs (
 );
 
 CREATE TABLE program_modules (
-  program_id BIGINT REFERENCES programs (id),
-  module_id BIGINT REFERENCES modules (id),
+  program_id BIGINT NOT NULL REFERENCES programs (id),
+  module_id BIGINT NOT NULL REFERENCES modules (id),
   PRIMARY KEY (program_id, module_id)
 );
 
 CREATE TABLE users (
   id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  teaching_group_id BIGINT REFERENCES teaching_groups (id),
+  teaching_group_id BIGINT NOT NULL REFERENCES teaching_groups (id),
   name VARCHAR(200) NOT NULL,
   email VARCHAR(300) NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
@@ -67,6 +67,52 @@ CREATE TABLE users (
 CREATE TABLE teaching_groups (
   id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   slug VARCHAR(500),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TYPE subscription_status AS ENUM ('active', 'pending', 'cancelled', 'completed');
+
+CREATE TABLE enrollments (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  user_id BIGINT NOT NULL REFERENCES users (id),
+  program_id BIGINT NOT NULL REFERENCES programs (id),
+  status subscription_status NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed', 'refunded');
+
+CREATE TABLE payments (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  enrollment_id BIGINT NOT NULL REFERENCES enrollments (id),
+  amount NUMERIC NOT NULL,
+  status payment_status NOT NULL DEFAULT 'pending',
+  payment_date TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TYPE program_completion_status AS ENUM ('active', 'completed', 'pending', 'cancelled');
+
+CREATE TABLE program_completions (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  user_id BIGINT NOT NULL REFERENCES users (id),
+  program_id BIGINT NOT NULL REFERENCES programs (id),
+  status program_completion_status NOT NULL DEFAULT 'pending',
+  start_date TIMESTAMPTZ,
+  end_date TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE certificates (
+  id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  user_id BIGINT NOT NULL REFERENCES users (id),
+  program_id BIGINT NOT NULL REFERENCES programs (id),
+  link VARCHAR(500),
+  release_date TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
